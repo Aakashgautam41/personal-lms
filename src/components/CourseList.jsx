@@ -1,34 +1,31 @@
-import { useDispatch, useSelector } from 'react-redux'
-import CourseCard from './CourseCard'
-import { addCourse } from '../store/actions/courseActions'
+import { useDispatch, useSelector } from "react-redux";
+import {
+  FETCH_COURSES_REQUEST,
+  addCourse,
+} from "../store/actions/courseActions";
+import CourseCard from "./CourseCard";
+import { useEffect } from "react";
 
 const CourseList = () => {
-    const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-    // Read data from Redux store
-    const courses = useSelector(state => state.courses.courses)
+  const { courses, loading } = useSelector((state) => state.courses);
 
-    const handleAddCourse = () => {
-        dispatch(addCourse({
-            id: Date.now(),
-            title: 'New Course',
-            lessons: 6
-        }))
-    }
+  useEffect(() => {
+    dispatch({ type: FETCH_COURSES_REQUEST });
+  }, [dispatch]);
 
+  return (
+    <div>
+      <h2>Available Courses</h2>
 
+      {loading && <p>Loading courses...</p>}
 
-    return (
-        <div>
-            <h2>Available Courses</h2>
+      {courses.map((course) => (
+        <CourseCard key={course.id} course={course} />
+      ))}
+    </div>
+  );
+};
 
-            <button onClick={handleAddCourse}>➕ Add Course</button>
-
-            {courses.map(course => (
-                <CourseCard key={course.id} course={course} />
-            ))}
-        </div>
-    )
-}
-
-export default CourseList
+export default CourseList;
