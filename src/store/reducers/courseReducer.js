@@ -1,7 +1,7 @@
 import {
-  ADD_COURSE,
   FETCH_COURSES_REQUEST,
   FETCH_COURSES_SUCCESS,
+  ADD_COURSE_SUCCESS,
 } from "../actions/courseActions";
 
 // Initial state
@@ -24,7 +24,7 @@ export default function courseReducer(state = initialState, action) {
         loading: false,
         courses: action.payload,
       };
-    case ADD_COURSE:
+    case ADD_COURSE_SUCCESS:
       return {
         ...state,
         courses: [...state.courses, action.payload],
