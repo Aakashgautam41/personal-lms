@@ -17,23 +17,40 @@ function* fetchCourses() {
   });
 }
 
-// Add new course (POST)
-function* addCourseSaga(action) {
-  const response = yield fetch("http://localhost:4000/courses", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(action.payload),
-  });
+function* handleAddCourse(action) {
+  try {
+    const newCourse = action.payload;
 
-  const createdCourse = yield response.json();
+    // fetch all courses
+    const resp = yield fetch("http://localhost:4000/courses");
+    const courses = yield resp.json();
 
-  yield put({
-    type: ADD_COURSE_SUCCESS,
-    payload: createdCourse,
-  });
+    // check for duplicate titles
+    const exists = courses.some(
+      (c) => c.title.toLowerCase() === newCourse.title.toLowerCase()
+    );
+
+    if (exists) {
+      alert("This course already exists!");
+      return;
+    }
+
+    // create new course
+    const addResp = yield fetch("http://localhost:4000/courses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCourse),
+    });
+
+    const created = yield addResp.json();
+
+    yield put({ type: ADD_COURSE_SUCCESS, payload: created });
+  } catch (err) {
+    yield put({ type: ADD_COURSE_FAIL, payload: "Could not add course" });
+  }
 }
 
 export default function* courseSaga() {
   yield takeLatest(FETCH_COURSES_REQUEST, fetchCourses);
-  yield takeLatest(ADD_COURSE_REQUEST, addCourseSaga);
+  yield takeLatest(ADD_COURSE_REQUEST, handleAddCourse);
 }

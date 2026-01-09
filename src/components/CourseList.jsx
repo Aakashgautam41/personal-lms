@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addCourseRequest } from "../store/actions/courseActions";
 import { markCourseCompleteRequest } from "../store/actions/progressActions";
+import { fetchCoursesRequest } from "../store/actions/courseActions";
 
 const CourseList = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,12 @@ const CourseList = () => {
 
   const [title, setTitle] = useState("");
   const [lessons, setLessons] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCoursesRequest());
+    }
+  }, [isAuthenticated]);
 
   const getCourseProgress = (courseId) => {
     const p = progress.find((p) => p.courseId === courseId);
