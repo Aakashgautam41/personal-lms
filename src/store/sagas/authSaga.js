@@ -1,4 +1,4 @@
-import { takeLatest, put } from "redux-saga/effects";
+import { takeLatest, put, call } from "redux-saga/effects";
 import {
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
@@ -13,7 +13,8 @@ function* handleRegister(action) {
   const { username, password } = action.payload;
 
   try {
-    const usersResp = yield fetch("http://localhost:4000/users");
+    // Get existing users
+    const usersResp = yield call(fetch, "http://localhost:4000/users");
     const users = yield usersResp.json();
 
     const exists = users.find((u) => u.username === username);
@@ -23,14 +24,18 @@ function* handleRegister(action) {
       return;
     }
 
-    // POST new user
-    yield fetch("http://localhost:4000/users", {
+    // Create new user
+    const resp = yield call(fetch, "http://localhost:4000/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
 
-    yield put({ type: REGISTER_SUCCESS });
+    // IMPORTANT: get newly created user object (with id)
+    const newUser = yield resp.json();
+
+    // SEND full user object to reducer as payload
+    yield put({ type: REGISTER_SUCCESS, payload: newUser });
   } catch (err) {
     yield put({ type: REGISTER_FAIL, payload: "Server error" });
   }
@@ -41,7 +46,7 @@ function* handleLogin(action) {
   const { username, password } = action.payload;
 
   try {
-    const resp = yield fetch("http://localhost:4000/users");
+    const resp = yield call(fetch, "http://localhost:4000/users");
     const users = yield resp.json();
 
     const found = users.find(

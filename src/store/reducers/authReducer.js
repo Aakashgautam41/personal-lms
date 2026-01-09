@@ -6,26 +6,44 @@ import {
   LOGOUT,
 } from "../actions/authActions";
 
+let savedUser = null;
+
+// load safely
+try {
+  const raw = localStorage.getItem("auth");
+  if (raw) savedUser = JSON.parse(raw);
+} catch (e) {
+  savedUser = null;
+}
+
 const initialState = {
-  user: null,
-  isAuthenticated: false,
+  user: savedUser || null,
+  isAuthenticated: !!savedUser,
+  loading: false,
   error: null,
 };
 
 export default function authReducer(state = initialState, action) {
   switch (action.type) {
     case REGISTER_SUCCESS:
-      return { ...state, error: null };
+      localStorage.setItem("auth", JSON.stringify(action.payload));
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: true,
+        loading: false,
+      };
 
     case REGISTER_FAIL:
       return { ...state, error: action.payload };
 
     case LOGIN_SUCCESS:
+      localStorage.setItem("auth", JSON.stringify(action.payload));
       return {
         ...state,
         user: action.payload,
         isAuthenticated: true,
-        error: null,
+        loading: false,
       };
 
     case LOGIN_FAIL:
@@ -36,7 +54,12 @@ export default function authReducer(state = initialState, action) {
       };
 
     case LOGOUT:
-      return { user: null, isAuthenticated: false, error: null };
+      localStorage.removeItem("auth");
+      return {
+        ...state,
+        user: null,
+        isAuthenticated: false,
+      };
 
     default:
       return state;

@@ -22,7 +22,7 @@ const Login = () => {
     if (isAuthenticated) {
       navigate("/courses");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated]);
 
   const handleLogin = () => {
     dispatch(loginRequest(username, password));
@@ -36,7 +36,7 @@ const Login = () => {
   if (isAuthenticated) {
     return (
       <div>
-        <p>Welcome, {user.username}! 🎉</p>
+        <p>Welcome, {user?.username}!🎉</p>
         <button
           onClick={() => {
             dispatch(logout());
